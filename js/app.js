@@ -1,3 +1,14 @@
+var iconBase = 'img/';
+var icons = {
+  restaurant: {
+    icon: iconBase + 'food.png'
+  },
+  sightseeing: {
+    icon: iconBase + 'sightseeing.png'
+  }
+}
+
+
 var locations = [
   {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}},
   {title: 'Chelsea Loft', location: {lat: 40.7444883, lng: -73.9949465}},
@@ -17,23 +28,90 @@ var Location = function(data) {
 // View Model to process the interaction between view and model
 var ViewModel =  function() {
   var self = this;
+  const restaurant_request = 'https://api.yelp.com/v3/businesses/search?term=food&latitude=37.7749&longitude=-122.4194&radius=6000&sort_by=review_count';
+  const sightseeing_request = 'https://api.yelp.com/v3/businesses/search?term=Sightseeing&latitude=37.7749&longitude=-122.4194&radius=6000&sort_by=review_count';
 
   this.googleMap = createMap({ lat: 37.7749295, lng: -122.4194155 });
-  this.locationList = [];
+  this.restaurantList = [];
+  this.sightseeingList = [];
   var geocoder = new google.maps.Geocoder();
   
   document.getElementById('submit').addEventListener('click', function() {
     geocodeAddress(geocoder);
   });
 
-  locations.forEach(function(place){
-    var markerInfo = new google.maps.Marker({
-      map: self.googleMap,
-      position: place.location,
-      animation: google.maps.Animation.DROP,
-      title: place.title
-    });
+  $.ajax({
+    url: restaurant_request,
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader('Authorization','Bearer ivVR946m7PcXxffeRGdPeaw3SJecp0BhamNsTVLcjhBT2Dlv_hQwSIgNuxF6a_AcDg8UP0aUsSWfPZbzgvbYYoExsV2YYKWnr5k_oskgluhetXjRs5eHbZnd-Pp-W3Yx')
+    },
+    type: 'GET',
+    success: function(result) {
+
+      result.businesses.forEach(function(place){
+        self.restaurantList.push(place);
+      });
+
+      var restaurant_icon = {
+        url: icons.restaurant.icon, // url
+        scaledSize: new google.maps.Size(30, 30), // scaled size
+        origin: new google.maps.Point(0,0), // origin
+        anchor: new google.maps.Point(0, 0) // ancho
+      }
+
+      self.restaurantList.forEach(function(place){
+        var markerInfo = new google.maps.Marker({
+          map: self.googleMap,
+          position: { lat: place.coordinates.latitude, lng: place.coordinates.longitude},
+          animation: google.maps.Animation.DROP,
+          title: place.name,
+          icon: restaurant_icon
+        });
+      });
+
+    },
+    error: function(error) {
+      console.log('Error');
+    }
   });
+
+  $.ajax({
+    url: sightseeing_request,
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader('Authorization','Bearer ivVR946m7PcXxffeRGdPeaw3SJecp0BhamNsTVLcjhBT2Dlv_hQwSIgNuxF6a_AcDg8UP0aUsSWfPZbzgvbYYoExsV2YYKWnr5k_oskgluhetXjRs5eHbZnd-Pp-W3Yx')
+    },
+    type: 'GET',
+    success: function(result) {
+
+      result.businesses.forEach(function(place){
+        self.sightseeingList.push(place);
+      });
+
+      var sightseeing_icon = {
+        url: icons.sightseeing.icon, // url
+        scaledSize: new google.maps.Size(30, 30), // scaled size
+        origin: new google.maps.Point(0,0), // origin
+        anchor: new google.maps.Point(0, 0) // ancho
+      }
+
+      self.sightseeingList.forEach(function(place){
+        var markerInfo = new google.maps.Marker({
+          map: self.googleMap,
+          position: { lat: place.coordinates.latitude, lng: place.coordinates.longitude},
+          animation: google.maps.Animation.DROP,
+          title: place.name,
+          icon: sightseeing_icon
+        });
+      });
+
+    },
+    error: function(error) {
+      console.log('Error');
+    }
+  });
+
+
+
 
   function createMap(latLng) {
     return new google.maps.Map(document.getElementById('map'), {
