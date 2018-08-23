@@ -28,6 +28,7 @@ var Location = function(data) {
 // View Model to process the interaction between view and model
 var ViewModel =  function() {
   var self = this;
+  var largeInfowindow = new google.maps.InfoWindow();
   const restaurant_request = 'https://api.yelp.com/v3/businesses/search?term=food&latitude=37.7749&longitude=-122.4194&radius=6000&sort_by=review_count';
   const sightseeing_request = 'https://api.yelp.com/v3/businesses/search?term=Sightseeing&latitude=37.7749&longitude=-122.4194&radius=6000&sort_by=review_count';
 
@@ -54,18 +55,22 @@ var ViewModel =  function() {
 
       var restaurant_icon = {
         url: icons.restaurant.icon, // url
-        scaledSize: new google.maps.Size(30, 30), // scaled size
+        scaledSize: new google.maps.Size(25, 25), // scaled size
         origin: new google.maps.Point(0,0), // origin
         anchor: new google.maps.Point(0, 0) // ancho
       }
 
       self.restaurantList.forEach(function(place){
-        var markerInfo = new google.maps.Marker({
+        var marker = new google.maps.Marker({
           map: self.googleMap,
           position: { lat: place.coordinates.latitude, lng: place.coordinates.longitude},
           animation: google.maps.Animation.DROP,
           title: place.name,
           icon: restaurant_icon
+        });
+
+        marker.addListener('click', function() {
+          populateInfoWindow(this, largeInfowindow);
         });
       });
 
@@ -89,19 +94,24 @@ var ViewModel =  function() {
 
       var sightseeing_icon = {
         url: icons.sightseeing.icon, // url
-        scaledSize: new google.maps.Size(30, 30), // scaled size
+        scaledSize: new google.maps.Size(25, 25), // scaled size
         origin: new google.maps.Point(0,0), // origin
         anchor: new google.maps.Point(0, 0) // ancho
       }
 
       self.sightseeingList.forEach(function(place){
-        var markerInfo = new google.maps.Marker({
+        var marker = new google.maps.Marker({
           map: self.googleMap,
           position: { lat: place.coordinates.latitude, lng: place.coordinates.longitude},
           animation: google.maps.Animation.DROP,
           title: place.name,
           icon: sightseeing_icon
         });
+
+        marker.addListener('click', function() {
+          populateInfoWindow(this, largeInfowindow);
+        });
+
       });
 
     },
@@ -133,6 +143,54 @@ var ViewModel =  function() {
     });
   }
 
+  // This function populates the infowindow when the marker is clicked. We'll only allow
+  // one infowindow which will open at the marker that is clicked, and populate based
+  // on that markers position.
+  function populateInfoWindow(marker, infowindow) {
+    // Check to make sure the infowindow is not already opened on this marker.
+    if (infowindow.marker != marker) {
+      // Clear the infowindow content to give the streetview time to load.
+      infowindow.setContent('');
+      infowindow.marker = marker;
+      // Make sure the marker property is cleared if the infowindow is closed.
+      infowindow.addListener('closeclick', function() {
+        infowindow.marker = null;
+      });
+      var streetViewService = new google.maps.StreetViewService();
+      var radius = 50;
+      
+      // In case the status is OK, which means the pano was found, compute the
+      // position of the streetview image, then calculate the heading, then get a
+      // panorama from that and set the options
+      function getStreetView(data, status) {
+        if (status == google.maps.StreetViewStatus.OK) {
+          var nearStreetViewLocation = data.location.latLng;
+          var heading = google.maps.geometry.spherical.computeHeading(
+            nearStreetViewLocation, marker.position);
+            infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+            var panoramaOptions = {
+              position: nearStreetViewLocation,
+              pov: {
+                heading: heading,
+                pitch: 30
+              }
+            };
+          var panorama = new google.maps.StreetViewPanorama(
+            document.getElementById('pano'), panoramaOptions);
+        } else {
+          infowindow.setContent('<div>' + marker.title + '</div>' +
+            '<div>No Street View Found</div>');
+        }
+      }
+
+      // Use streetview service to get the closest streetview image within
+      // 50 meters of the markers position
+      streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+      // Open the infowindow on the correct marker.
+      infowindow.open(map, marker);
+    }
+  }
+
 }
 
 var initMap = function() {
@@ -142,13 +200,10 @@ var initMap = function() {
 }
 
 
-// init(){
 
-//     var locationList = [
-//        { name: 'New York', latLng: { lat: 40.786998, lng: -73.975664 } },
-//        { name: 'San Francisco', latLng: { lat: 37.763061, lng: -122.431935 } },
-//        { name: 'Los Angeles', latLng: { lat: 34.079078, lng: -118.242818 } }
-//     ];
+
+
+// init(){
 //     var googleMap = createMap();
 //     ko.applyBindings(new koViewModel(googleMap,locationList));
 
