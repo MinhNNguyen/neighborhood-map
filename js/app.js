@@ -32,67 +32,80 @@ var Location = function(data, category) {
   this.name = ko.observable(data.name);
   this.lat = ko.observable(data.coordinates.latitude);
   this.long = ko.observable(data.coordinates.longitude);
+  this.review_count = ko.observable(data.review_count);
+  this.rating = ko.observable(data.rating);
   this.category = ko.observable(category);
+
+  // Perhaps produce a new lat long using computable variable
 }
 
-// View Model to process the interaction between view and model
+//---View Model that defines how the user interact with elements in
+//---the interface and data stored in the database---
+
 var ViewModel =  function() {
   var self = this;
   var largeInfowindow = new google.maps.InfoWindow();
-  const restaurant_request = 'https://api.yelp.com/v3/businesses/search?term=food&latitude=37.7749&longitude=-122.4194&radius=6000&sort_by=review_count';
-  const sightseeing_request = 'https://api.yelp.com/v3/businesses/search?term=Sightseeing&latitude=37.7749&longitude=-122.4194&radius=6000&sort_by=review_count';
-
   this.googleMap = createMap({ lat: 37.7749295, lng: -122.4194155 });
-  this.restaurantList = [];
-  this.sightseeingList = [];
-  this.locations  = ko.observableArray([]);
+  this.restaurantList = ko.observableArray([]);
+  this.point_of_interestList = ko.observableArray([]);
   var geocoder = new google.maps.Geocoder();
 
-  
-  document.getElementById('submit').addEventListener('click', function() {
+  // Icon that is going to be used for marker on the map
+
+  var restaurant_icon = {
+    url: icons.restaurant.icon, // url
+    scaledSize: new google.maps.Size(25, 25), // scaled size
+    origin: new google.maps.Point(0,0), // origin
+    anchor: new google.maps.Point(0, 0) // ancho
+  }
+
+  var point_of_interest_icon = {
+    url: icons.sightseeing.icon, // url
+    scaledSize: new google.maps.Size(25, 25), // scaled size
+    origin: new google.maps.Point(0,0), // origin
+    anchor: new google.maps.Point(0, 0) // ancho
+  }
+
+  // Event listeners to button on the navigation bar
+
+  document.getElementById('submit').addEventListener('click', 
+    function() {
     geocodeAddress(geocoder);
   });
 
+  document.getElementById('search').addEventListener('click', 
+    function() {
+  }); 
+
+  document.getElementById('filter').addEventListener('click', 
+    function() {
+  });
+
+  // The asynchronous call to Yelp Fusion API to extract the
+  // information of the most popular restaurant in the area. The data
+  // being received will be stored in the model objects and populate
+  // onto the map as restaurant markers
+
   $.ajax({
-    url: restaurant_request,
+    url: YELP_RESTAURANT_REQUEST,
     beforeSend: function(xhr) {
-      xhr.setRequestHeader('Authorization','Bearer ivVR946m7PcXxffeRGdPeaw3SJecp0BhamNsTVLcjhBT2Dlv_hQwSIgNuxF6a_AcDg8UP0aUsSWfPZbzgvbYYoExsV2YYKWnr5k_oskgluhetXjRs5eHbZnd-Pp-W3Yx')
+      xhr.setRequestHeader('Authorization',YELP_AUTHORIZATION_STRING)
     },
     type: 'GET',
     success: function(result) {
 
-      result.businesses.forEach(function(place){
-        self.restaurantList.push(place);
-        self.locations.push( new Location(place, 'Restaurant') );
-        var dataFromServer = ko.utils.parseJson(place);
-      });
       var dataFromServer = ko.toJS(result.businesses);
-      console.log(dataFromServer);
-      self.mappedData = ko.utils.arrayMap(dataFromServer, function(place) {
+      self.restaurantList = ko.utils.arrayMap(dataFromServer,
+       function(place) {
         return new Location(place, 'Restaurant');
       });
 
-
-      ko.utils.arrayForEach(self.mappedData, function(item) {
-        console.log(item.category());
-        console.log(item.name());
-        console.log(item.lat());
-        console.log(item.long());
-      });
-
-      var restaurant_icon = {
-        url: icons.restaurant.icon, // url
-        scaledSize: new google.maps.Size(25, 25), // scaled size
-        origin: new google.maps.Point(0,0), // origin
-        anchor: new google.maps.Point(0, 0) // ancho
-      }
-
-      self.restaurantList.forEach(function(place){
+      ko.utils.arrayForEach(self.restaurantList, function(place) {
         var marker = new google.maps.Marker({
           map: self.googleMap,
-          position: { lat: place.coordinates.latitude, lng: place.coordinates.longitude},
+          position: { lat: place.lat(), lng: place.long()},
           animation: google.maps.Animation.DROP,
-          title: place.name,
+          title: place.name(),
           icon: restaurant_icon
         });
 
@@ -107,32 +120,33 @@ var ViewModel =  function() {
     }
   });
 
+  // The asynchronous call to Yelp Fusion API to extract the
+  // information of the most popular point of interest in the area. 
+  // The data being received will be stored in the model objects and
+  // populate onto the map as point of interest markers
+
   $.ajax({
-    url: sightseeing_request,
+    url: YELP_POINT_OF_INTEREST_REQUEST,
     beforeSend: function(xhr) {
-      xhr.setRequestHeader('Authorization','Bearer ivVR946m7PcXxffeRGdPeaw3SJecp0BhamNsTVLcjhBT2Dlv_hQwSIgNuxF6a_AcDg8UP0aUsSWfPZbzgvbYYoExsV2YYKWnr5k_oskgluhetXjRs5eHbZnd-Pp-W3Yx')
+      xhr.setRequestHeader('Authorization',YELP_AUTHORIZATION_STRING)
     },
     type: 'GET',
     success: function(result) {
 
-      result.businesses.forEach(function(place){
-        self.sightseeingList.push(place);
+      var dataFromServer = ko.toJS(result.businesses);
+      self.point_of_interestList = ko.utils.arrayMap(dataFromServer,
+       function(place) {
+        return new Location(place, 'Point of Interest');
       });
 
-      var sightseeing_icon = {
-        url: icons.sightseeing.icon, // url
-        scaledSize: new google.maps.Size(25, 25), // scaled size
-        origin: new google.maps.Point(0,0), // origin
-        anchor: new google.maps.Point(0, 0) // ancho
-      }
-
-      self.sightseeingList.forEach(function(place){
+      ko.utils.arrayForEach(self.point_of_interestList,
+       function(place) {
         var marker = new google.maps.Marker({
           map: self.googleMap,
-          position: { lat: place.coordinates.latitude, lng: place.coordinates.longitude},
+          position: { lat: place.lat(), lng: place.long()},
           animation: google.maps.Animation.DROP,
-          title: place.name,
-          icon: sightseeing_icon
+          title: place.name(),
+          icon: point_of_interest_icon
         });
 
         marker.addListener('click', function() {
@@ -147,9 +161,6 @@ var ViewModel =  function() {
     }
   });
 
-
-
-
   function createMap(latLng) {
     return new google.maps.Map(document.getElementById('map'), {
       center: latLng,
@@ -159,42 +170,60 @@ var ViewModel =  function() {
 
   function geocodeAddress(geocoder) {
     var address = document.getElementById('address').value;
-    geocoder.geocode({'address': address}, function(results, status) {
+    geocoder.geocode({'address': address}, function(results, status) 
+    {
       if (status === google.maps.GeocoderStatus.OK) {
         self.googleMap.setCenter(results[0].geometry.location);
-        document.getElementById('firstComponent').innerHTML="The Formatted Address is: " + results[0].formatted_address; // PUT STUFF HERE
-        document.getElementById('secondComponent').innerHTML="The Location is: " + results[0].geometry.location;
+        document.getElementById('firstComponent').innerHTML =
+        'The Formatted Address is: ' + results[0].formatted_address;
+        document.getElementById('secondComponent').innerHTML =
+        'The Location is: ' + results[0].geometry.location;
       } else {
-        alert('Geocode was not successful for the following reason: ' + status);
+        alert('Geocode was not successful for the following reason: '
+         + status);
       }
     });
   }
 
-  // This function populates the infowindow when the marker is clicked. We'll only allow
-  // one infowindow which will open at the marker that is clicked, and populate based
-  // on that markers position.
+  // This function populates the infowindow when the marker is 
+  // clicked. We'll only allow one infowindow which will open at the
+  // marker that is clicked, and populate basedon that markers
+  // position.
+
   function populateInfoWindow(marker, infowindow) {
-    // Check to make sure the infowindow is not already opened on this marker.
+
+    // Check to make sure the infowindow is not already
+    // opened on this marker.
+
     if (infowindow.marker != marker) {
-      // Clear the infowindow content to give the streetview time to load.
+
+      // Clear the infowindow content to give the streetview
+      // time to load.
+
       infowindow.setContent('');
       infowindow.marker = marker;
-      // Make sure the marker property is cleared if the infowindow is closed.
+
+      // Make sure the marker property is cleared if the infowindow
+      // is closed.
+
       infowindow.addListener('closeclick', function() {
         infowindow.marker = null;
       });
       var streetViewService = new google.maps.StreetViewService();
       var radius = 50;
       
-      // In case the status is OK, which means the pano was found, compute the
-      // position of the streetview image, then calculate the heading, then get a
-      // panorama from that and set the options
+      // In case the status is OK, which means the pano was found,
+      // compute the position of the streetview image, then calculate
+      // the heading, then get a panorama from that and set the
+      // options.
+
       function getStreetView(data, status) {
         if (status == google.maps.StreetViewStatus.OK) {
           var nearStreetViewLocation = data.location.latLng;
-          var heading = google.maps.geometry.spherical.computeHeading(
-            nearStreetViewLocation, marker.position);
-            infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+          var heading = google.maps.geometry.spherical.
+          computeHeading(nearStreetViewLocation, marker.position);
+            infowindow.setContent('<div>' + marker.title +
+             '</div><div id="pano"></div>');
             var panoramaOptions = {
               position: nearStreetViewLocation,
               pov: {
@@ -210,18 +239,19 @@ var ViewModel =  function() {
         }
       }
 
-      // Use streetview service to get the closest streetview image within
-      // 50 meters of the markers position
-      streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+      // Use streetview service to get the closest streetview image
+      // within 50 meters of the markers position
+
+      streetViewService.getPanoramaByLocation(marker.position,
+       radius, getStreetView);
+
       // Open the infowindow on the correct marker.
+
       infowindow.open(map, marker);
     }
   }
-
 }
 
 var initMap = function() {
   ko.applyBindings(new ViewModel());
-
-
 }
