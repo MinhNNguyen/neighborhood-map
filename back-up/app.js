@@ -1,21 +1,3 @@
-//---Possible API key is going to be used including Foursquare API---
-
-var FOURSQUARE_CLIENTID = 
-  'ZCIMYWQFHOGENPXBAK2UVALQZVTFWSMEY4YPTFHZRJ55DO4E';
-var FOURSQUARE_CLIENTSECRET = 
-  'JWVIRUNRFJH3QAZJF3UHUOYI1J4W1AH0IR54DVI5IK3JEAOE';
-var YELP_RESTAURANT_REQUEST = 'https://api.yelp.com/v3/businesses/' +
-  'search?term=food&latitude=37.7749&longitude=-122.4194&radius=60' +
-  '00&sort_by=review_count';
-var YELP_POINT_OF_INTEREST_REQUEST = 'https://api.yelp.com/v3/busi' +
-  'nesses/search?term=Sightseeing&latitude=37.7749&longitude=-122.' + 
-  '4194&radius=6000&sort_by=review_count';
-var YELP_AUTHORIZATION_STRING = 'Bearer ivVR946m7PcXxffeRGdPeaw3SJ' + 
-  'ecp0BhamNsTVLcjhBT2Dlv_hQwSIgNuxF6a_AcDg8UP0aUsSWfPZbzgvbYYoExs' + 
-  'V2YYKWnr5k_oskgluhetXjRs5eHbZnd-Pp-W3Yx';
-
-//---Construction of icon URLs to be used for marker icon---
-
 var iconBase = 'img/';
 var icons = {
   restaurant: {
@@ -26,13 +8,11 @@ var icons = {
   }
 }
 
-//---Definition of Model---
-
-var Location = function(data, category) {
+// Location Model to store the data of the location
+var Location = function(data) {
   this.name = ko.observable(data.name);
-  this.lat = ko.observable(data.coordinates.latitude);
-  this.long = ko.observable(data.coordinates.longitude);
-  this.category = ko.observable(category);
+  this.latLng = ko.observable(data.latLng);
+  this.marker = null;
 }
 
 // View Model to process the interaction between view and model
@@ -45,7 +25,6 @@ var ViewModel =  function() {
   this.googleMap = createMap({ lat: 37.7749295, lng: -122.4194155 });
   this.restaurantList = [];
   this.sightseeingList = [];
-  this.locations  = ko.observableArray([]);
   var geocoder = new google.maps.Geocoder();
 
   
@@ -61,23 +40,12 @@ var ViewModel =  function() {
     type: 'GET',
     success: function(result) {
 
+
+      var parsed = ko.toJS(result);
+
       result.businesses.forEach(function(place){
         self.restaurantList.push(place);
-        self.locations.push( new Location(place, 'Restaurant') );
-        var dataFromServer = ko.utils.parseJson(place);
-      });
-      var dataFromServer = ko.toJS(result.businesses);
-      console.log(dataFromServer);
-      self.mappedData = ko.utils.arrayMap(dataFromServer, function(place) {
-        return new Location(place, 'Restaurant');
-      });
 
-
-      ko.utils.arrayForEach(self.mappedData, function(item) {
-        console.log(item.category());
-        console.log(item.name());
-        console.log(item.lat());
-        console.log(item.long());
       });
 
       var restaurant_icon = {

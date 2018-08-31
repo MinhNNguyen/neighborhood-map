@@ -8,14 +8,18 @@
 <body>
   <div id="nav">
     <input id="address" type="textbox" VALUE="San Francisco">
-    <input id="submit" type="button" value="Geocode">
-    <div id="firstComponent">
-    </div>
-    <div id="secondComponent">
-    </div>
+    <input id="submit" type="button" value="Relocate">
+    <input id="search" type="button" value="Search">
+    <input id="filter" type="button" value="Filter">
+  </div>
+  <div id="aside">
+    <ul data-bind="foreach: locations">
+      <li data-bind="text: name"></li>
+    </ul>
   </div>
   <div id="map"></div>
   <script src="js/lib/knockout-3.4.2.js"></script>
+  <script src="js/lib/knockout.mapping-lastest.js"></script>
   <script
     src="https://code.jquery.com/jquery-3.3.1.js"
     integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
