@@ -6,10 +6,10 @@ var FOURSQUARE_CLIENTSECRET =
   'JWVIRUNRFJH3QAZJF3UHUOYI1J4W1AH0IR54DVI5IK3JEAOE';
 var YELP_RESTAURANT_REQUEST = 'https://api.yelp.com/v3/businesses/' +
   'search?term=food&latitude=37.7749&longitude=-122.4194&radius=60' +
-  '00&sort_by=review_count';
+  '00&sort_by=review_count&limit=10';
 var YELP_POINT_OF_INTEREST_REQUEST = 'https://api.yelp.com/v3/busi' +
   'nesses/search?term=Sightseeing&latitude=37.7749&longitude=-122.' + 
-  '4194&radius=6000&sort_by=review_count';
+  '4194&radius=6000&sort_by=review_count&limit=10';
 var YELP_AUTHORIZATION_STRING = 'Bearer ivVR946m7PcXxffeRGdPeaw3SJ' + 
   'ecp0BhamNsTVLcjhBT2Dlv_hQwSIgNuxF6a_AcDg8UP0aUsSWfPZbzgvbYYoExs' + 
   'V2YYKWnr5k_oskgluhetXjRs5eHbZnd-Pp-W3Yx';
@@ -48,6 +48,8 @@ var ViewModel =  function() {
   this.googleMap = createMap({ lat: 37.7749295, lng: -122.4194155 });
   this.restaurantList = ko.observableArray([]);
   this.point_of_interestList = ko.observableArray([]);
+  this.locationLists = ko.observableArray([]);
+  this.filteredLists = ko.observableArray([]);
   var geocoder = new google.maps.Geocoder();
 
   // Icon that is going to be used for marker on the map
@@ -75,10 +77,14 @@ var ViewModel =  function() {
 
   document.getElementById('search').addEventListener('click', 
     function() {
-  }); 
-
-  document.getElementById('filter').addEventListener('click', 
-    function() {
+      var keyword = $('#keyword').val();
+      self.filteredLists.removeAll();
+      ko.utils.arrayForEach(self.locationLists, function(place) {
+        if (place.match(keyword)) {
+          //self.filteredLists.push(place);
+        }
+      });
+      console.log(self.filteredLists);
   });
 
   // The asynchronous call to Yelp Fusion API to extract the
@@ -112,6 +118,8 @@ var ViewModel =  function() {
         marker.addListener('click', function() {
           populateInfoWindow(this, largeInfowindow);
         });
+
+        self.locationLists.push(place.name());
       });
 
     },
@@ -153,6 +161,8 @@ var ViewModel =  function() {
           populateInfoWindow(this, largeInfowindow);
         });
 
+        self.locationLists.push(place.name());
+
       });
 
     },
@@ -160,6 +170,17 @@ var ViewModel =  function() {
       console.log('Error');
     }
   });
+
+  this.tableData = ko.computed(function() {
+    var data = ko.unwrap(self.restaurantList);
+    var res = ko.observableArray();
+
+    for ( var i in data) {
+      res.push({ name: data[i].name});
+    }
+
+    return res;
+  }, this)
 
   function createMap(latLng) {
     return new google.maps.Map(document.getElementById('map'), {
