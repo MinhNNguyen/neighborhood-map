@@ -8,14 +8,16 @@
 <body>
   <div id="nav">
     <input id="address" type="textbox" VALUE="San Francisco">
-    <input id="submit" type="button" value="Relocate">
+    <input id="relocate" type="button" value="Relocate">
     <input id="keyword" type="textbox" VALUE="">
     <input id="search" type="button" value="Search">
     <input id="filter" type="button" value="Filter">
   </div>
   <div id="aside">
-    <ul data-bind="foreach: locationLists">
-      <li data-bind="text: $data"></li>
+    <ul data-bind="foreach: locationList">
+      <div data-bind="if: visible">
+        <li data-bind="text: name"></li>
+      </div>
     </ul>
   </div>
   <div id="map"></div>

@@ -35,6 +35,7 @@ var Location = function(data, category) {
   this.review_count = ko.observable(data.review_count);
   this.rating = ko.observable(data.rating);
   this.category = ko.observable(category);
+  this.visible = ko.observable(false);
 
   // Perhaps produce a new lat long using computable variable
 }
@@ -48,8 +49,7 @@ var ViewModel =  function() {
   this.googleMap = createMap({ lat: 37.7749295, lng: -122.4194155 });
   this.restaurantList = ko.observableArray([]);
   this.point_of_interestList = ko.observableArray([]);
-  this.locationLists = ko.observableArray([]);
-  this.filteredLists = ko.observableArray([]);
+  this.locationList = ko.observableArray([]);
   var geocoder = new google.maps.Geocoder();
 
   // Icon that is going to be used for marker on the map
@@ -70,7 +70,7 @@ var ViewModel =  function() {
 
   // Event listeners to button on the navigation bar
 
-  document.getElementById('submit').addEventListener('click', 
+  document.getElementById('relocate').addEventListener('click', 
     function() {
     geocodeAddress(geocoder);
   });
@@ -78,13 +78,7 @@ var ViewModel =  function() {
   document.getElementById('search').addEventListener('click', 
     function() {
       var keyword = $('#keyword').val();
-      self.filteredLists.removeAll();
-      ko.utils.arrayForEach(self.locationLists, function(place) {
-        if (place.match(keyword)) {
-          //self.filteredLists.push(place);
-        }
-      });
-      console.log(self.filteredLists);
+      
   });
 
   // The asynchronous call to Yelp Fusion API to extract the
@@ -101,12 +95,14 @@ var ViewModel =  function() {
     success: function(result) {
 
       var dataFromServer = ko.toJS(result.businesses);
-      self.restaurantList = ko.utils.arrayMap(dataFromServer,
-       function(place) {
-        return new Location(place, 'Restaurant');
+      ko.utils.arrayMap(dataFromServer, function(place) {
+        self.restaurantList.push(new Location(place, 'Restaurant'));
+        self.locationList.push(new Location(place,
+          'Restaurant'));
       });
 
-      ko.utils.arrayForEach(self.restaurantList, function(place) {
+      ko.utils.arrayForEach(self.restaurantList(), function(place) {
+
         var marker = new google.maps.Marker({
           map: self.googleMap,
           position: { lat: place.lat(), lng: place.long()},
@@ -115,11 +111,11 @@ var ViewModel =  function() {
           icon: restaurant_icon
         });
 
+
         marker.addListener('click', function() {
           populateInfoWindow(this, largeInfowindow);
         });
 
-        self.locationLists.push(place.name());
       });
 
     },
@@ -142,12 +138,14 @@ var ViewModel =  function() {
     success: function(result) {
 
       var dataFromServer = ko.toJS(result.businesses);
-      self.point_of_interestList = ko.utils.arrayMap(dataFromServer,
-       function(place) {
-        return new Location(place, 'Point of Interest');
+      ko.utils.arrayMap(dataFromServer, function(place) {
+        self.point_of_interestList.push(new Location(place,
+          'Point Of Interest'));
+        self.locationList.push(new Location(place,
+          'Point Of Interest'));
       });
 
-      ko.utils.arrayForEach(self.point_of_interestList,
+      ko.utils.arrayForEach(self.point_of_interestList(),
        function(place) {
         var marker = new google.maps.Marker({
           map: self.googleMap,
@@ -160,8 +158,6 @@ var ViewModel =  function() {
         marker.addListener('click', function() {
           populateInfoWindow(this, largeInfowindow);
         });
-
-        self.locationLists.push(place.name());
 
       });
 

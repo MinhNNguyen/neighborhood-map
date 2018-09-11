@@ -20,6 +20,10 @@
     font-size: 15px;
   }
 
+  #aside ul {
+    list-style-type: none;
+  }
+
   #map {
     height: 100%;
     width: 88%;
