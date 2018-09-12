@@ -44,13 +44,15 @@ var Location = function(data, category) {
 //---the interface and data stored in the database---
 
 var ViewModel =  function() {
+
   var self = this;
   var largeInfowindow = new google.maps.InfoWindow();
   this.googleMap = createMap({ lat: 37.7749295, lng: -122.4194155 });
-  this.restaurantList = ko.observableArray([]);
-  this.point_of_interestList = ko.observableArray([]);
   this.locationList = ko.observableArray([]);
   var geocoder = new google.maps.Geocoder();
+  var show_restaurant = true;
+  var show_landmark = true;
+  var search_word = '';
 
   // Icon that is going to be used for marker on the map
 
@@ -75,30 +77,54 @@ var ViewModel =  function() {
     geocodeAddress(geocoder);
   });
 
-  document.getElementById('toggle').addEventListener('click', 
+  document.getElementById('toggle-restaurant').addEventListener('click', 
     function() {
-    ko.utils.arrayForEach(self.restaurantList(), function(place) {
-      if (!place.marker().getVisible()) {
-        place.marker().setVisible(true);
-      } 
-      else {
-        place.marker().setVisible(false);
-      }
-    });
+    show_restaurant = !show_restaurant;
+    updateList();
+    renderMarker();
+  });
+
+  document.getElementById('toggle-landmark').addEventListener('click', 
+    function() {
+    show_landmark = !show_landmark;
+    updateList();
+    renderMarker();
   });
 
   document.getElementById('search').addEventListener('click', 
     function() {
-      var keyword = $('#keyword').val();
-      ko.utils.arrayForEach(self.locationList(), function(place) {
-        if (keyword == "" || place.name().match(keyword)) {
+      search_word = $('#keyword').val();
+      updateList();
+      renderMarker();
+  });
+
+  function updateList() {
+    ko.utils.arrayForEach(self.locationList(), function(place) {
+      if ( (place.category() == 'Restaurant' && show_restaurant) ||
+        (place.category() == 'Point Of Interest' && show_landmark) ) {
+        if ( search_word == "" || place.name().match(search_word)) {
           place.visible(true);
-        } 
+        }
         else {
           place.visible(false);
         }
-      });
-  });
+      }
+      else {
+        place.visible(false);
+      }
+    });
+  }
+
+  function renderMarker() {
+    ko.utils.arrayForEach(self.locationList(), function(place) {
+      if ( place.visible() ) {
+        place.marker().setVisible(true);
+      }
+      else {
+        place.marker().setVisible(false);
+      }
+    });
+  };
 
   // The asynchronous call to Yelp Fusion API to extract the
   // information of the most popular restaurant in the area. The data
@@ -114,28 +140,26 @@ var ViewModel =  function() {
     success: function(result) {
 
       var dataFromServer = ko.toJS(result.businesses);
-      ko.utils.arrayMap(dataFromServer, function(place) {
-        self.restaurantList.push(new Location(place, 'Restaurant'));
-        self.locationList.push(new Location(place,
-          'Restaurant'));
-      });
 
-      ko.utils.arrayForEach(self.restaurantList(), function(place) {
+      ko.utils.arrayMap(dataFromServer, function(place) {
+        var newPlace = new Location(place,'Restaurant');
 
         var marker = new google.maps.Marker({
           map: self.googleMap,
-          position: { lat: place.lat(), lng: place.long()},
+          position: { lat: place.coordinates.latitude, 
+            lng: place.coordinates.longitude},
           animation: google.maps.Animation.DROP,
-          title: place.name(),
+          title: place.name,
           icon: restaurant_icon,
-          visible: false
+          visible: true
         });
 
         marker.addListener('click', function() {
           populateInfoWindow(this, largeInfowindow);
         });
 
-        place.marker(marker);
+        newPlace.marker(marker);
+        self.locationList.push(newPlace);
 
       });
 
@@ -160,26 +184,25 @@ var ViewModel =  function() {
 
       var dataFromServer = ko.toJS(result.businesses);
       ko.utils.arrayMap(dataFromServer, function(place) {
-        self.point_of_interestList.push(new Location(place,
-          'Point Of Interest'));
-        self.locationList.push(new Location(place,
-          'Point Of Interest'));
-      });
 
-      ko.utils.arrayForEach(self.point_of_interestList(),
-       function(place) {
+        var newPlace = new Location(place,'Point Of Interest');
+
         var marker = new google.maps.Marker({
           map: self.googleMap,
-          position: { lat: place.lat(), lng: place.long()},
+          position: { lat: place.coordinates.latitude, 
+            lng: place.coordinates.longitude},
           animation: google.maps.Animation.DROP,
-          title: place.name(),
+          title: place.name,
           icon: point_of_interest_icon,
-          visible: false
+          visible: true
         });
 
         marker.addListener('click', function() {
           populateInfoWindow(this, largeInfowindow);
         });
+
+        newPlace.marker(marker);
+        self.locationList.push(newPlace);
 
       });
 
@@ -203,7 +226,8 @@ var ViewModel =  function() {
   function createMap(latLng) {
     return new google.maps.Map(document.getElementById('map'), {
       center: latLng,
-      zoom: 13
+      zoom: 13,
+      gmarkers: [],
     });
   }
 
