@@ -1,4 +1,5 @@
 //---Possible API key is going to be used including Foursquare API---
+//---Possible Hotels and museus added to the list
 
 var FOURSQUARE_CLIENTID = 
   'ZCIMYWQFHOGENPXBAK2UVALQZVTFWSMEY4YPTFHZRJ55DO4E';
@@ -35,9 +36,8 @@ var Location = function(data, category) {
   this.review_count = ko.observable(data.review_count);
   this.rating = ko.observable(data.rating);
   this.category = ko.observable(category);
-  this.visible = ko.observable(false);
-
-  // Perhaps produce a new lat long using computable variable
+  this.visible = ko.observable(true);
+  this.marker = ko.observable(null);
 }
 
 //---View Model that defines how the user interact with elements in
@@ -65,7 +65,7 @@ var ViewModel =  function() {
     url: icons.sightseeing.icon, // url
     scaledSize: new google.maps.Size(25, 25), // scaled size
     origin: new google.maps.Point(0,0), // origin
-    anchor: new google.maps.Point(0, 0) // ancho
+    anchor: new google.maps.Point(0, 0) // anchor
   }
 
   // Event listeners to button on the navigation bar
@@ -75,10 +75,29 @@ var ViewModel =  function() {
     geocodeAddress(geocoder);
   });
 
+  document.getElementById('toggle').addEventListener('click', 
+    function() {
+    ko.utils.arrayForEach(self.restaurantList(), function(place) {
+      if (!place.marker().getVisible()) {
+        place.marker().setVisible(true);
+      } 
+      else {
+        place.marker().setVisible(false);
+      }
+    });
+  });
+
   document.getElementById('search').addEventListener('click', 
     function() {
       var keyword = $('#keyword').val();
-      
+      ko.utils.arrayForEach(self.locationList(), function(place) {
+        if (keyword == "" || place.name().match(keyword)) {
+          place.visible(true);
+        } 
+        else {
+          place.visible(false);
+        }
+      });
   });
 
   // The asynchronous call to Yelp Fusion API to extract the
@@ -108,13 +127,15 @@ var ViewModel =  function() {
           position: { lat: place.lat(), lng: place.long()},
           animation: google.maps.Animation.DROP,
           title: place.name(),
-          icon: restaurant_icon
+          icon: restaurant_icon,
+          visible: false
         });
-
 
         marker.addListener('click', function() {
           populateInfoWindow(this, largeInfowindow);
         });
+
+        place.marker(marker);
 
       });
 
@@ -152,7 +173,8 @@ var ViewModel =  function() {
           position: { lat: place.lat(), lng: place.long()},
           animation: google.maps.Animation.DROP,
           title: place.name(),
-          icon: point_of_interest_icon
+          icon: point_of_interest_icon,
+          visible: false
         });
 
         marker.addListener('click', function() {
