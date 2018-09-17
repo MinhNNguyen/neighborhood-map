@@ -193,7 +193,7 @@ var ViewModel =  function() {
         var marker = new google.maps.Marker({
           map: self.googleMap,
           position: { lat: place.coordinates.latitude, 
-            lng: place.coordinates.longitude},
+          lng: place.coordinates.longitude},
           animation: google.maps.Animation.DROP,
           title: place.name,
           icon: restaurant_icon,
@@ -213,6 +213,10 @@ var ViewModel =  function() {
         newPlace.marker(marker);
         self.locationList.push(newPlace);
 
+      });
+
+      self.locationList.sort(function(left, right) {
+        return left.name() == right.name() ? 0 : (left.name() < right.name() ? -1 : 1);
       });
 
     },
@@ -259,6 +263,10 @@ var ViewModel =  function() {
 
       });
 
+      self.locationList.sort(function(left, right) {
+        return left.name() == right.name() ? 0 : (left.name() < right.name() ? -1 : 1);
+      });
+
     },
     error: function(error) {
       console.log('Error');
@@ -303,6 +311,10 @@ var ViewModel =  function() {
 
       });
 
+      self.locationList.sort(function(left, right) {
+        return left.name() == right.name() ? 0 : (left.name() < right.name() ? -1 : 1);
+      });
+
     },
     error: function(error) {
       console.log('Error');
@@ -345,6 +357,10 @@ var ViewModel =  function() {
         newPlace.marker(marker);
         self.locationList.push(newPlace);
 
+      });
+
+      self.locationList.sort(function(left, right) {
+        return left.name() == right.name() ? 0 : (left.name() < right.name() ? -1 : 1);
       });
 
     },
@@ -465,7 +481,7 @@ var ViewModel =  function() {
     this.marker().setAnimation(google.maps.Animation.BOUNCE);
     populateInfoWindow(this.marker(), largeInfowindow);
   }
-    
+
 }
 
 var initMap = function() {

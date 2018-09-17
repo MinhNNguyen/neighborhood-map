@@ -5,28 +5,30 @@
     padding: 0;
     flex-wrap: wrap;
     display: flex;
+    background-color: rgb(234, 250, 255);
     }
 
   #nav {
-    background-color: black;
+
     width: 100%;
   }
 
   #aside {
-    background-color: black;
     height: 100%;
-    width: 12%;
-    color: white;
+    width: 15%;
+    color: #525c65;
     font-size: 15px;
+    overflow-y:scroll;
   }
 
   #aside ul {
-    list-style-type: none;
+/*    list-style-type: inside;*/
+    padding-left: 20px;
   }
 
   #map {
     height: 100%;
-    width: 88%;
+    width: 85%;
   }
 
   #floating-panel {
@@ -44,7 +46,7 @@
   }
 
   #pano {
-    width: 300px;
-    height: 300px;
+    width: 250px;
+    height: 250px;
   }
 
