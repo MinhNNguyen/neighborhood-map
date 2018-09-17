@@ -70,11 +70,6 @@ var ViewModel =  function() {
   var search_word = '';
   this.currentLocation = ko.observable();
 
-  this.refocusLocation  = function() {
-    self.currentLocation(this);
-  }
-
-
   // Icon that is going to be used for marker on the map
 
   var restaurant_icon = {
@@ -459,6 +454,18 @@ var ViewModel =  function() {
       infowindow.open(map, marker);
     }
   }
+
+  this.refocus = function() {
+    self.currentLocation(this);
+    ko.utils.arrayForEach(self.locationList(), function(place) {
+      if (place.marker().getAnimation() != null) {
+        place.marker().setAnimation(null);
+      }
+    });
+    this.marker().setAnimation(google.maps.Animation.BOUNCE);
+    populateInfoWindow(this.marker(), largeInfowindow);
+  }
+    
 }
 
 var initMap = function() {

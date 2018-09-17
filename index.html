@@ -19,8 +19,10 @@
   </div>
   <div id="aside">
     <ul data-bind="foreach: locationList">
-      <div data-bind="if: visible">
-        <li data-bind="'text': name, 'click' : function(){selectItem();}"></li>
+      <div data-bind="with: $data">
+        <div data-bind="if: visible">
+          <li data-bind="text: name, click: $parents[1].refocus"></li>
+        </div>
       </div>
     </ul>
   </div>
