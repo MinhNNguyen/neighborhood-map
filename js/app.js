@@ -1,5 +1,4 @@
 //---Possible API key is going to be used including Foursquare API---
-//---Possible Hotels and museus added to the list
 
 var FOURSQUARE_CLIENTID = 
   'ZCIMYWQFHOGENPXBAK2UVALQZVTFWSMEY4YPTFHZRJ55DO4E';
@@ -9,7 +8,7 @@ var YELP_RESTAURANT_REQUEST = 'https://api.yelp.com/v3/businesses/' +
   'search?term=food&latitude=37.7749&longitude=-122.4194&radius=60' +
   '00&sort_by=review_count&limit=10';
 var YELP_LANDMARK_REQUEST = 'https://api.yelp.com/v3/busi' +
-  'nesses/search?term=Sightseeing&latitude=37.7749&longitude=-122.' + 
+  'nesses/search?term=Sightseeing&latitude=37.7749&longitude=-122.' +
   '4194&radius=6000&sort_by=review_count&limit=10';
 var YELP_MUSEUS_REQUEST = 'https://api.yelp.com/v3/busi' +
   'nesses/search?term=Museums&latitude=37.7749&longitude=-122.' + 
@@ -17,8 +16,8 @@ var YELP_MUSEUS_REQUEST = 'https://api.yelp.com/v3/busi' +
 var YELP_HOTELS_REQUEST = 'https://api.yelp.com/v3/busi' +
   'nesses/search?term=hotels&latitude=37.7749&longitude=-122.' + 
   '4194&radius=6000&sort_by=review_count&limit=10';
-var YELP_AUTHORIZATION_STRING = 'Bearer ivVR946m7PcXxffeRGdPeaw3SJ' + 
-  'ecp0BhamNsTVLcjhBT2Dlv_hQwSIgNuxF6a_AcDg8UP0aUsSWfPZbzgvbYYoExs' + 
+var YELP_AUTHORIZATION_STRING = 'Bearer ivVR946m7PcXxffeRGdPeaw3SJ' +
+  'ecp0BhamNsTVLcjhBT2Dlv_hQwSIgNuxF6a_AcDg8UP0aUsSWfPZbzgvbYYoExs' +
   'V2YYKWnr5k_oskgluhetXjRs5eHbZnd-Pp-W3Yx';
 
 //---Construction of icon URLs to be used for marker icon---
@@ -107,29 +106,29 @@ var ViewModel =  function() {
   //   geocodeAddress(geocoder);
   // });
 
-  document.getElementById('toggle-restaurant').addEventListener('click', 
-    function() {
+  document.getElementById('toggle-restaurant').addEventListener(
+    'click', function() {
     show_restaurant = !show_restaurant;
     updateList();
     renderMarker();
   });
 
-  document.getElementById('toggle-landmark').addEventListener('click', 
-    function() {
+  document.getElementById('toggle-landmark').addEventListener(
+    'click', function() {
     show_landmark = !show_landmark;
     updateList();
     renderMarker();
   });
 
-  document.getElementById('toggle-hotel').addEventListener('click', 
-    function() {
+  document.getElementById('toggle-hotel').addEventListener(
+    'click', function() {
     show_hotel = !show_hotel;
     updateList();
     renderMarker();
   });
 
-  document.getElementById('toggle-museum').addEventListener('click', 
-    function() {
+  document.getElementById('toggle-museum').addEventListener(
+    'click', function() {
     show_museum= !show_museum;
     updateList();
     renderMarker();
@@ -142,6 +141,9 @@ var ViewModel =  function() {
       renderMarker();
   });
 
+
+  // Helper function to update the visible items appearing on the 
+  // list
   function updateList() {
     ko.utils.arrayForEach(self.locationList(), function(place) {
       if ( (place.category() == 'Restaurant' && show_restaurant) ||
@@ -161,6 +163,9 @@ var ViewModel =  function() {
     });
   }
 
+
+  // Helper function to hide and show the marker on the map according
+  // to the location showing on the left list
   function renderMarker() {
     ko.utils.arrayForEach(self.locationList(), function(place) {
       if ( place.visible() ) {
@@ -173,9 +178,9 @@ var ViewModel =  function() {
   };
 
   // The asynchronous call to Yelp Fusion API to extract the
-  // information of the most popular location in the area. The data
+  // information of the most popular locations in the area. The data
   // being received will be stored in the model objects and populate
-  // onto the map as markers
+  // the list of locations and their respective markers
 
   $.ajax({
     url: YELP_RESTAURANT_REQUEST,
@@ -190,6 +195,7 @@ var ViewModel =  function() {
       ko.utils.arrayMap(dataFromServer, function(place) {
         var newPlace = new Location(place,'Restaurant');
 
+        // Creating the marker object based on the info of location
         var marker = new google.maps.Marker({
           map: self.googleMap,
           position: { lat: place.coordinates.latitude, 
@@ -200,8 +206,10 @@ var ViewModel =  function() {
           visible: true
         });
 
+        // Add event listener to the marker object
         marker.addListener('click', function() {
-          ko.utils.arrayForEach(self.locationList(), function(place) {
+          ko.utils.arrayForEach(self.locationList(), function(place) 
+          {
             if (place.marker().getAnimation() != null) {
               place.marker().setAnimation(null);
             }
@@ -215,8 +223,10 @@ var ViewModel =  function() {
 
       });
 
+      // Sort the location list on alphabetical order
       self.locationList.sort(function(left, right) {
-        return left.name() == right.name() ? 0 : (left.name() < right.name() ? -1 : 1);
+        return left.name() == right.name() ? 0 : 
+        (left.name() < right.name() ? -1 : 1);
       });
 
     },
@@ -238,6 +248,7 @@ var ViewModel =  function() {
 
         var newPlace = new Location(place,'Landmark');
 
+        // Creating the marker object based on the info of location
         var marker = new google.maps.Marker({
           map: self.googleMap,
           position: { lat: place.coordinates.latitude, 
@@ -248,6 +259,7 @@ var ViewModel =  function() {
           visible: true
         });
 
+        // Add event listener to the marker object
         marker.addListener('click', function() {
           ko.utils.arrayForEach(self.locationList(), function(place) {
             if (place.marker().getAnimation() != null) {
@@ -263,8 +275,10 @@ var ViewModel =  function() {
 
       });
 
+      // Sort the location list on alphabetical order
       self.locationList.sort(function(left, right) {
-        return left.name() == right.name() ? 0 : (left.name() < right.name() ? -1 : 1);
+        return left.name() == right.name() ? 0 : 
+        (left.name() < right.name() ? -1 : 1);
       });
 
     },
@@ -286,6 +300,7 @@ var ViewModel =  function() {
       ko.utils.arrayMap(dataFromServer, function(place) {
         var newPlace = new Location(place,'Museum');
 
+        // Creating the marker object based on the info of location
         var marker = new google.maps.Marker({
           map: self.googleMap,
           position: { lat: place.coordinates.latitude, 
@@ -296,8 +311,10 @@ var ViewModel =  function() {
           visible: true
         });
 
+        // Add event listener to the marker object
         marker.addListener('click', function() {
-          ko.utils.arrayForEach(self.locationList(), function(place) {
+          ko.utils.arrayForEach(self.locationList(), function(place) 
+          {
             if (place.marker().getAnimation() != null) {
               place.marker().setAnimation(null);
             }
@@ -311,8 +328,10 @@ var ViewModel =  function() {
 
       });
 
+      // Sort the location list on alphabetical order
       self.locationList.sort(function(left, right) {
-        return left.name() == right.name() ? 0 : (left.name() < right.name() ? -1 : 1);
+        return left.name() == right.name() ? 0 : 
+        (left.name() < right.name() ? -1 : 1);
       });
 
     },
@@ -334,6 +353,7 @@ var ViewModel =  function() {
       ko.utils.arrayMap(dataFromServer, function(place) {
         var newPlace = new Location(place,'Hotel');
 
+        // Creating the marker object based on the info of location
         var marker = new google.maps.Marker({
           map: self.googleMap,
           position: { lat: place.coordinates.latitude, 
@@ -344,8 +364,10 @@ var ViewModel =  function() {
           visible: true
         });
 
+        // Add event listener to the marker object
         marker.addListener('click', function() {
-          ko.utils.arrayForEach(self.locationList(), function(place) {
+          ko.utils.arrayForEach(self.locationList(), function(place) 
+          {
             if (place.marker().getAnimation() != null) {
               place.marker().setAnimation(null);
             }
@@ -359,8 +381,10 @@ var ViewModel =  function() {
 
       });
 
+      // Sort the location list on alphabetical order
       self.locationList.sort(function(left, right) {
-        return left.name() == right.name() ? 0 : (left.name() < right.name() ? -1 : 1);
+        return left.name() == right.name() ? 0 :
+         (left.name() < right.name() ? -1 : 1);
       });
 
     },
@@ -369,17 +393,7 @@ var ViewModel =  function() {
     }
   });
 
-  this.tableData = ko.computed(function() {
-    var data = ko.unwrap(self.restaurantList);
-    var res = ko.observableArray();
-
-    for ( var i in data) {
-      res.push({ name: data[i].name});
-    }
-
-    return res;
-  }, this)
-
+  // Return the map being created using Google API
   function createMap(latLng) {
     return new google.maps.Map(document.getElementById('map'), {
       center: latLng,
@@ -388,22 +402,24 @@ var ViewModel =  function() {
     });
   }
 
-  // function geocodeAddress(geocoder) {
-  //   var address = document.getElementById('address').value;
-  //   geocoder.geocode({'address': address}, function(results, status) 
-  //   {
-  //     if (status === google.maps.GeocoderStatus.OK) {
-  //       self.googleMap.setCenter(results[0].geometry.location);
-  //       document.getElementById('firstComponent').innerHTML =
-  //       'The Formatted Address is: ' + results[0].formatted_address;
-  //       document.getElementById('secondComponent').innerHTML =
-  //       'The Location is: ' + results[0].geometry.location;
-  //     } else {
-  //       alert('Geocode was not successful for the following reason: '
-  //        + status);
-  //     }
-  //   });
-  // }
+/**
+  function geocodeAddress(geocoder) {
+    var address = document.getElementById('address').value;
+    geocoder.geocode({'address': address}, function(results, status)
+    {
+      if (status === google.maps.GeocoderStatus.OK) {
+        self.googleMap.setCenter(results[0].geometry.location);
+        document.getElementById('firstComponent').innerHTML =
+        'The Formatted Address is: ' + results[0].formatted_address;
+        document.getElementById('secondComponent').innerHTML =
+        'The Location is: ' + results[0].geometry.location;
+      } else {
+        alert('Geocode was not successful for the following reason: '
+         + status);
+      }
+    });
+  }
+*/
 
   // This function populates the infowindow when the marker is 
   // clicked. We'll only allow one infowindow which will open at the
@@ -471,6 +487,8 @@ var ViewModel =  function() {
     }
   }
 
+  // The function to help refocus into the location being clicked
+  // on the list
   this.refocus = function() {
     self.currentLocation(this);
     ko.utils.arrayForEach(self.locationList(), function(place) {
@@ -484,6 +502,7 @@ var ViewModel =  function() {
 
 }
 
+// Initiate the whole map and bind the view model with the view
 var initMap = function() {
   ko.applyBindings(new ViewModel());
 }

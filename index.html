@@ -7,8 +7,8 @@
 </head>
 <body>
   <div id="nav">
-<!--     <input id="address" type="textbox" VALUE="San Francisco"> -->
-<!--     <input id="relocate" type="button" value="Relocate"> -->
+<!--     <input id="address" type="textbox" VALUE="San Francisco">-->
+<!--     <input id="relocate" type="button" value="Relocate">-->
     <input id="keyword" type="textbox" VALUE="">
     <input id="search" type="button" value="Search">
 <!--     <input id="filter" type="button" value="Filter"> -->
@@ -21,7 +21,7 @@
     <ul data-bind="foreach: locationList">
       <div data-bind="with: $data">
         <div data-bind="if: visible">
-          <li data-bind="text: name, click: $parents[1].refocus"><  /li>
+          <li data-bind="text: name,click: $parents[1].refocus"></li>
         </div>
       </div>
     </ul>
