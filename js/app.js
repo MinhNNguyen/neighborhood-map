@@ -102,10 +102,10 @@ var ViewModel =  function() {
 
   // Event listeners to button on the navigation bar
 
-  document.getElementById('relocate').addEventListener('click', 
-    function() {
-    geocodeAddress(geocoder);
-  });
+  // document.getElementById('relocate').addEventListener('click', 
+  //   function() {
+  //   geocodeAddress(geocoder);
+  // });
 
   document.getElementById('toggle-restaurant').addEventListener('click', 
     function() {
@@ -388,22 +388,22 @@ var ViewModel =  function() {
     });
   }
 
-  function geocodeAddress(geocoder) {
-    var address = document.getElementById('address').value;
-    geocoder.geocode({'address': address}, function(results, status) 
-    {
-      if (status === google.maps.GeocoderStatus.OK) {
-        self.googleMap.setCenter(results[0].geometry.location);
-        document.getElementById('firstComponent').innerHTML =
-        'The Formatted Address is: ' + results[0].formatted_address;
-        document.getElementById('secondComponent').innerHTML =
-        'The Location is: ' + results[0].geometry.location;
-      } else {
-        alert('Geocode was not successful for the following reason: '
-         + status);
-      }
-    });
-  }
+  // function geocodeAddress(geocoder) {
+  //   var address = document.getElementById('address').value;
+  //   geocoder.geocode({'address': address}, function(results, status) 
+  //   {
+  //     if (status === google.maps.GeocoderStatus.OK) {
+  //       self.googleMap.setCenter(results[0].geometry.location);
+  //       document.getElementById('firstComponent').innerHTML =
+  //       'The Formatted Address is: ' + results[0].formatted_address;
+  //       document.getElementById('secondComponent').innerHTML =
+  //       'The Location is: ' + results[0].geometry.location;
+  //     } else {
+  //       alert('Geocode was not successful for the following reason: '
+  //        + status);
+  //     }
+  //   });
+  // }
 
   // This function populates the infowindow when the marker is 
   // clicked. We'll only allow one infowindow which will open at the
