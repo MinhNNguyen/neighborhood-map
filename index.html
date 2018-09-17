@@ -14,11 +14,13 @@
     <input id="filter" type="button" value="Filter">
     <input id="toggle-restaurant" type="button" value="Restaurant">
     <input id="toggle-landmark" type="button" value="Landmark">
+    <input id="toggle-hotel" type="button" value="Hotel">
+    <input id="toggle-museum" type="button" value="Museum">
   </div>
   <div id="aside">
     <ul data-bind="foreach: locationList">
       <div data-bind="if: visible">
-        <li data-bind="text: name"></li>
+        <li data-bind="'text': name, 'click' : function(){selectItem();}"></li>
       </div>
     </ul>
   </div>

@@ -1,10 +1,16 @@
 var iconBase = 'img/';
 var icons = {
   restaurant: {
-    icon: iconBase + 'food.png'
+    icon: iconBase + 'restaurant.png'
   },
-  sightseeing: {
-    icon: iconBase + 'sightseeing.png'
+  landmark: {
+    icon: iconBase + 'landmark.png'
+  },
+  hotel: {
+    icon: iconBase + 'hotel.png'
+  },
+  museum: {
+    icon: iconBase + 'museum.png'
   }
 }
 
