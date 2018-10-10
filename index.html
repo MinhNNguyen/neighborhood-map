@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <title>Neighborhood Map</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="css/style-sml.css">
+  <link rel="stylesheet" type="text/css" media="screen and (min-width:1000px)" href="css/style.css">
 </head>
 <body>
   <div id="nav">
 <!--     <input id="address" type="textbox" VALUE="San Francisco">-->
 <!--     <input id="relocate" type="button" value="Relocate">-->
-    <input id="keyword" type="textbox" VALUE="">
-    <input id="search" type="button" value="Search">
-<!--     <input id="filter" type="button" value="Filter"> -->
-    <input id="toggle-restaurant" type="button" value="Restaurant">
-    <input id="toggle-landmark" type="button" value="Landmark">
-    <input id="toggle-hotel" type="button" value="Hotel">
-    <input id="toggle-museum" type="button" value="Museum">
+    <input id="keyword" class="nav-item" type="textbox" VALUE="">
+    <input id="search" class="nav-item" type="button" value="Search">
+    <input id="clear-search" class="nav-item" type="button" value="Clear Search">
+    <input id="toggle-restaurant" class="nav-item" type="button" value="Restaurant">
+    <input id="toggle-landmark" class="nav-item" type="button" value="Landmark">
+    <input id="toggle-hotel" class="nav-item" type="button" value="Hotel">
+    <input id="toggle-museum" class="nav-item" type="button" value="Museum">
   </div>
   <div id="aside">
     <ul data-bind="foreach: locationList">
@@ -36,7 +37,7 @@
   </script>
   <script src="js/app.js"></script>
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCp5D5fH54Q0-_A3KL2sdtYE7G2Cfhhy2A&v=3&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCp5D5fH54Q0-_A3KL2sdtYE7G2Cfhhy2A&v=3&callback=initMap" onerror="googleError()">
   </script>
 </body>
 </html>

@@ -1,9 +1,5 @@
 //---Possible API key is going to be used including Foursquare API---
 
-var FOURSQUARE_CLIENTID = 
-  'ZCIMYWQFHOGENPXBAK2UVALQZVTFWSMEY4YPTFHZRJ55DO4E';
-var FOURSQUARE_CLIENTSECRET = 
-  'JWVIRUNRFJH3QAZJF3UHUOYI1J4W1AH0IR54DVI5IK3JEAOE';
 var YELP_RESTAURANT_REQUEST = 'https://api.yelp.com/v3/businesses/' +
   'search?term=food&latitude=37.7749&longitude=-122.4194&radius=60' +
   '00&sort_by=review_count&limit=10';
@@ -19,6 +15,7 @@ var YELP_HOTELS_REQUEST = 'https://api.yelp.com/v3/busi' +
 var YELP_AUTHORIZATION_STRING = 'Bearer ivVR946m7PcXxffeRGdPeaw3SJ' +
   'ecp0BhamNsTVLcjhBT2Dlv_hQwSIgNuxF6a_AcDg8UP0aUsSWfPZbzgvbYYoExs' +
   'V2YYKWnr5k_oskgluhetXjRs5eHbZnd-Pp-W3Yx';
+
 
 //---Construction of icon URLs to be used for marker icon---
 
@@ -67,34 +64,39 @@ var ViewModel =  function() {
   var show_museum = true;
   var show_hotel = true;
   var search_word = '';
+  var viewport_width = $(window).width();
   this.currentLocation = ko.observable();
 
   // Icon that is going to be used for marker on the map
 
   var restaurant_icon = {
     url: icons.restaurant.icon, // url
-    scaledSize: new google.maps.Size(25, 25), // scaled size
+    scaledSize: viewport_width > 1000 ? new google.maps.Size(25, 25)
+      : new google.maps.Size(50, 50), // scaled size
     origin: new google.maps.Point(0,0), // origin
     anchor: new google.maps.Point(0, 0) // ancho
   }
 
   var landmark_icon = {
     url: icons.landmark.icon, // url
-    scaledSize: new google.maps.Size(25, 25), // scaled size
+    scaledSize: viewport_width > 1000 ? new google.maps.Size(25, 25)
+      : new google.maps.Size(50, 50), // scaled size
     origin: new google.maps.Point(0,0), // origin
     anchor: new google.maps.Point(0, 0) // anchor
   }
 
   var hotel_icon = {
     url: icons.hotel.icon, // url
-    scaledSize: new google.maps.Size(25, 25), // scaled size
+    scaledSize: viewport_width > 1000 ? new google.maps.Size(25, 25)
+      : new google.maps.Size(50, 50), // scaled size
     origin: new google.maps.Point(0,0), // origin
     anchor: new google.maps.Point(0, 0) // anchor
   }
 
   var museum_icon = {
     url: icons.museum.icon, // url
-    scaledSize: new google.maps.Size(25, 25), // scaled size
+    scaledSize: viewport_width > 1000 ? new google.maps.Size(25, 25)
+      : new google.maps.Size(50, 50), // scaled size
     origin: new google.maps.Point(0,0), // origin
     anchor: new google.maps.Point(0, 0) // anchor
   }
@@ -137,6 +139,18 @@ var ViewModel =  function() {
   document.getElementById('search').addEventListener('click', 
     function() {
       search_word = $('#keyword').val();
+      updateList();
+      renderMarker();
+  });
+
+  document.getElementById('clear-search').addEventListener('click', 
+    function() {
+      search_word = "";
+      show_museum = true;
+      show_landmark = true;
+      show_hotel = true;
+      show_restaurant = true;
+      $('#keyword').val('');
       updateList();
       renderMarker();
   });
@@ -189,19 +203,22 @@ var ViewModel =  function() {
     },
     type: 'GET',
     success: function(result) {
-
+      
       var dataFromServer = ko.toJS(result.businesses);
-
       ko.utils.arrayMap(dataFromServer, function(place) {
+        
         var newPlace = new Location(place,'Restaurant');
 
         // Creating the marker object based on the info of location
         var marker = new google.maps.Marker({
           map: self.googleMap,
           position: { lat: place.coordinates.latitude, 
-          lng: place.coordinates.longitude},
+            lng: place.coordinates.longitude},
           animation: google.maps.Animation.DROP,
           title: place.name,
+          phone: place.display_phone,
+          rating: place.rating,
+          review_count: place.review_count,
           icon: restaurant_icon,
           visible: true
         });
@@ -216,6 +233,7 @@ var ViewModel =  function() {
           });
           marker.setAnimation(google.maps.Animation.BOUNCE);
           populateInfoWindow(this, largeInfowindow);
+      
         });
 
         newPlace.marker(marker);
@@ -242,10 +260,10 @@ var ViewModel =  function() {
     },
     type: 'GET',
     success: function(result) {
-
+      
       var dataFromServer = ko.toJS(result.businesses);
       ko.utils.arrayMap(dataFromServer, function(place) {
-
+        
         var newPlace = new Location(place,'Landmark');
 
         // Creating the marker object based on the info of location
@@ -255,59 +273,10 @@ var ViewModel =  function() {
             lng: place.coordinates.longitude},
           animation: google.maps.Animation.DROP,
           title: place.name,
+          phone: place.display_phone,
+          rating: place.rating,
+          review_count: place.review_count,
           icon: landmark_icon,
-          visible: true
-        });
-
-        // Add event listener to the marker object
-        marker.addListener('click', function() {
-          ko.utils.arrayForEach(self.locationList(), function(place) {
-            if (place.marker().getAnimation() != null) {
-              place.marker().setAnimation(null);
-            }
-          });
-          marker.setAnimation(google.maps.Animation.BOUNCE);
-          populateInfoWindow(this, largeInfowindow);
-        });
-
-        newPlace.marker(marker);
-        self.locationList.push(newPlace);
-
-      });
-
-      // Sort the location list on alphabetical order
-      self.locationList.sort(function(left, right) {
-        return left.name() == right.name() ? 0 : 
-        (left.name() < right.name() ? -1 : 1);
-      });
-
-    },
-    error: function(error) {
-      console.log('Error');
-    }
-  });
-
-  $.ajax({
-    url: YELP_MUSEUS_REQUEST,
-    beforeSend: function(xhr) {
-      xhr.setRequestHeader('Authorization',YELP_AUTHORIZATION_STRING)
-    },
-    type: 'GET',
-    success: function(result) {
-
-      var dataFromServer = ko.toJS(result.businesses);
-
-      ko.utils.arrayMap(dataFromServer, function(place) {
-        var newPlace = new Location(place,'Museum');
-
-        // Creating the marker object based on the info of location
-        var marker = new google.maps.Marker({
-          map: self.googleMap,
-          position: { lat: place.coordinates.latitude, 
-            lng: place.coordinates.longitude},
-          animation: google.maps.Animation.DROP,
-          title: place.name,
-          icon: museum_icon,
           visible: true
         });
 
@@ -321,6 +290,7 @@ var ViewModel =  function() {
           });
           marker.setAnimation(google.maps.Animation.BOUNCE);
           populateInfoWindow(this, largeInfowindow);
+      
         });
 
         newPlace.marker(marker);
@@ -347,10 +317,10 @@ var ViewModel =  function() {
     },
     type: 'GET',
     success: function(result) {
-
+      
       var dataFromServer = ko.toJS(result.businesses);
-
       ko.utils.arrayMap(dataFromServer, function(place) {
+        
         var newPlace = new Location(place,'Hotel');
 
         // Creating the marker object based on the info of location
@@ -360,6 +330,9 @@ var ViewModel =  function() {
             lng: place.coordinates.longitude},
           animation: google.maps.Animation.DROP,
           title: place.name,
+          phone: place.display_phone,
+          rating: place.rating,
+          review_count: place.review_count,
           icon: hotel_icon,
           visible: true
         });
@@ -374,6 +347,7 @@ var ViewModel =  function() {
           });
           marker.setAnimation(google.maps.Animation.BOUNCE);
           populateInfoWindow(this, largeInfowindow);
+      
         });
 
         newPlace.marker(marker);
@@ -383,8 +357,65 @@ var ViewModel =  function() {
 
       // Sort the location list on alphabetical order
       self.locationList.sort(function(left, right) {
-        return left.name() == right.name() ? 0 :
-         (left.name() < right.name() ? -1 : 1);
+        return left.name() == right.name() ? 0 : 
+        (left.name() < right.name() ? -1 : 1);
+      });
+
+    },
+    error: function(error) {
+      console.log('Error');
+    }
+  });
+
+  $.ajax({
+    url: YELP_MUSEUS_REQUEST,
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader('Authorization',YELP_AUTHORIZATION_STRING)
+    },
+    type: 'GET',
+    success: function(result) {
+      
+      var dataFromServer = ko.toJS(result.businesses);
+      ko.utils.arrayMap(dataFromServer, function(place) {
+        
+        var newPlace = new Location(place,'Museum');
+
+        // Creating the marker object based on the info of location
+        var marker = new google.maps.Marker({
+          map: self.googleMap,
+          position: { lat: place.coordinates.latitude, 
+            lng: place.coordinates.longitude},
+          animation: google.maps.Animation.DROP,
+          title: place.name,
+          phone: place.display_phone,
+          rating: place.rating,
+          review_count: place.review_count,
+          icon: museum_icon,
+          visible: true
+        });
+
+        // Add event listener to the marker object
+        marker.addListener('click', function() {
+          ko.utils.arrayForEach(self.locationList(), function(place) 
+          {
+            if (place.marker().getAnimation() != null) {
+              place.marker().setAnimation(null);
+            }
+          });
+          marker.setAnimation(google.maps.Animation.BOUNCE);
+          populateInfoWindow(this, largeInfowindow);
+      
+        });
+
+        newPlace.marker(marker);
+        self.locationList.push(newPlace);
+
+      });
+
+      // Sort the location list on alphabetical order
+      self.locationList.sort(function(left, right) {
+        return left.name() == right.name() ? 0 : 
+        (left.name() < right.name() ? -1 : 1);
       });
 
     },
@@ -397,7 +428,7 @@ var ViewModel =  function() {
   function createMap(latLng) {
     return new google.maps.Map(document.getElementById('map'), {
       center: latLng,
-      zoom: 13,
+      zoom: viewport_width > 1000 ? 13 : 15,
       gmarkers: [],
     });
   }
@@ -458,8 +489,11 @@ var ViewModel =  function() {
           var nearStreetViewLocation = data.location.latLng;
           var heading = google.maps.geometry.spherical.
           computeHeading(nearStreetViewLocation, marker.position);
-            infowindow.setContent('<div>' + marker.title +
-             '</div><div id="pano"></div>');
+            infowindow.setContent('<div id="window-content"><h2>' + 
+              marker.title + '</h2><p>Phone: ' + marker.phone + 
+             '</p><p>Yelp Rating: ' + marker.rating +
+             '</p><p>Yelp Review Count: ' + marker.review_count +
+             '</p></div><div id="pano"></div>');
             var panoramaOptions = {
               position: nearStreetViewLocation,
               pov: {
@@ -505,4 +539,8 @@ var ViewModel =  function() {
 // Initiate the whole map and bind the view model with the view
 var initMap = function() {
   ko.applyBindings(new ViewModel());
+}
+
+var googleError = function() {
+  console.log('Error when loading Google map');
 }
