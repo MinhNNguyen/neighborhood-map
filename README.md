@@ -23,3 +23,6 @@ Yelp Fusion API
 --- Author
 
 Robert Nguyen
+
+--- Version
+1.1
