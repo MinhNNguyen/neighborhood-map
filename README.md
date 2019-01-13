@@ -1,28 +1,25 @@
---- Neighborhood Map
+# Neighborhood Map
+
+## Project Description
 
 A single page application featuing a map of San Francisco. This map allows you to see identify the most popular location to visit,
 a search function to easily discover these locations, and a support google earth to look around the place before going there in
 person. It also implements third-party API to provide a broader view of information about eawch place.
 
---- Motivation
+## Installation
 
-This project is a part of Full Stack Programming Course from Udacity 
+This project can be viewed with Google Chrome browser.
+If there is a 403 error to load resources then launching chrome Windows Run using
+"chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security" or simply disable web security feature
 
---- Installing
+## Built With
 
-This project can be viewed with google chrome. If there is a 403 error to load resources then launching chrome Windows Run using
-"chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security" or you can simply disable web security feature
-
---- Built With
-
-knockout-3.4.2.js
-jquery-3.3.1.js
+knockout-3.4.2
+jquery-3.3.1
 Google API
 Yelp Fusion API
 
---- Author
+## Author
 
 Robert Nguyen
 
---- Version
-1.1
