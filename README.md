@@ -4,6 +4,8 @@
 
 A single page application features a map of San Francisco. It allows you to see identify most popular locations inside the city, each come with the detail page using AJAX request from Yelp API and Google Earth.<br />
 
+Website URL: https://minhnnguyen.github.io/neighborhood-map/
+
 ## Configuration
 
 CORS Anywhere is added to AJAX request to resolve access block problem due to CORS policy.  
