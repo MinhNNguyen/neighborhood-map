@@ -2,22 +2,22 @@
 
 ## Project Description
 
-A single page application featuing a map of San Francisco. This map allows you to see identify the most popular location to visit,
-a search function to easily discover these locations, and a support google earth to look around the place before going there in
-person. It also implements third-party API to provide a broader view of information about eawch place.
+A single page application features a map of San Francisco. It allows you to see identify most popular locations inside the city, each come with the detail page using AJAX request from Yelp API and Google Earth.
 
-## Installation
+## Configuration
 
-This project can be viewed with Google Chrome browser.
-If there is a 403 error to load resources then launching chrome Windows Run using
-"chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security" or simply disable web security feature
+View this project using Google Chrome by runninng ```chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security``` or simply disable web security feature inside the browser.
 
 ## Built With
 
-knockout-3.4.2
-jquery-3.3.1
-Google API
-Yelp Fusion API
+knockout=3.4.2 <br />
+jquery=3.3.1 <br />
+Google API <br />
+Yelp Fusion API <br />
+
+## Third party resources
+
+Yelp Developer Page https://www.yelp.com/developers <br />
 
 ## Author
 
