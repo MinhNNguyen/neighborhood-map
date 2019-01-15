@@ -2,11 +2,12 @@
 
 ## Project Description
 
-A single page application features a map of San Francisco. It allows you to see identify most popular locations inside the city, each come with the detail page using AJAX request from Yelp API and Google Earth.
+A single page application features a map of San Francisco. It allows you to see identify most popular locations inside the city, each come with the detail page using AJAX request from Yelp API and Google Earth.<br />
 
 ## Configuration
 
-View this project using Google Chrome by runninng ```chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security``` or simply disable web security feature inside the browser.
+CORS Anywhere is added to AJAX request to resolve access block problem due to CORS policy.  
+
 
 ## Built With
 
@@ -18,6 +19,7 @@ Yelp Fusion API <br />
 ## Third party resources
 
 Yelp Developer Page https://www.yelp.com/developers <br />
+CORS Anywhere Github Page https://github.com/Rob--W/cors-anywhere/#documentation <br />
 
 ## Author
 

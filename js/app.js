@@ -1,15 +1,20 @@
+//--- Adding CORS anywhere that adds CORS headers to the proxied request ---
 //---Possible API key is going to be used including Foursquare API---
 
-var YELP_RESTAURANT_REQUEST = 'https://api.yelp.com/v3/businesses/' +
+var YELP_RESTAURANT_REQUEST = 'https://cors-anywhere.herokuapp.com/' +
+  'https://api.yelp.com/v3/businesses/' +
   'search?term=food&latitude=37.7749&longitude=-122.4194&radius=60' +
   '00&sort_by=review_count&limit=10';
-var YELP_LANDMARK_REQUEST = 'https://api.yelp.com/v3/busi' +
+var YELP_LANDMARK_REQUEST = 'https://cors-anywhere.herokuapp.com/' +
+  'https://api.yelp.com/v3/busi' +
   'nesses/search?term=Sightseeing&latitude=37.7749&longitude=-122.' +
   '4194&radius=6000&sort_by=review_count&limit=10';
-var YELP_MUSEUS_REQUEST = 'https://api.yelp.com/v3/busi' +
+var YELP_MUSEUS_REQUEST = 'https://cors-anywhere.herokuapp.com/' +
+  'https://api.yelp.com/v3/busi' +
   'nesses/search?term=Museums&latitude=37.7749&longitude=-122.' + 
   '4194&radius=6000&sort_by=review_count&limit=10';
-var YELP_HOTELS_REQUEST = 'https://api.yelp.com/v3/busi' +
+var YELP_HOTELS_REQUEST = 'https://cors-anywhere.herokuapp.com/' +
+  'https://api.yelp.com/v3/busi' +
   'nesses/search?term=hotels&latitude=37.7749&longitude=-122.' + 
   '4194&radius=6000&sort_by=review_count&limit=10';
 var YELP_AUTHORIZATION_STRING = 'Bearer ivVR946m7PcXxffeRGdPeaw3SJ' +
